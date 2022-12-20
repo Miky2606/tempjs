@@ -3,58 +3,106 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFile = exports.createApp = exports.runCommand = exports.selectTemplate = exports.createProject = void 0;
-const interface_1 = require("./interface");
-const child_process_1 = require("child_process");
+exports.createReactApp = exports.createAppNew = exports.fileApp = exports.createTS = exports.createApp = void 0;
 const fs_1 = __importDefault(require("fs"));
-const createProject = (name) => {
-    if (name === "")
-        return false;
-    return true;
-};
-exports.createProject = createProject;
-//get all templates
-const selectTemplate = (template) => {
-    console.log(template);
-    return interface_1.templatesDB.filter((e) => e.name === template);
-};
-exports.selectTemplate = selectTemplate;
-//validate the command
-const runCommand = (command) => {
+const path_1 = __importDefault(require("path"));
+const url_1 = __importDefault(require("url"));
+const https_1 = __importDefault(require("https"));
+const package_1 = require("../package/package");
+const function_css_frameworl_1 = require("./functions/function.css.frameworl");
+const functions_fs_1 = require("./functions/functions.fs");
+const command_1 = require("./functions/command");
+const createApp = (name, object) => {
+    const dir = `./${name}`;
+    package_1.jsonPack.name = name;
     try {
-        (0, child_process_1.execSync)(`${command}`, { stdio: "inherit" });
+        if (object.extension === 'ts') {
+            (0, exports.createTS)(dir, object);
+        }
+        fs_1.default.mkdirSync(`${dir}/src`);
+        fs_1.default.writeFileSync(`${dir}/package.json`, JSON.stringify(package_1.jsonPack));
+        fs_1.default.writeFileSync(`${dir}/src/index.${object.extension}`, "console.log('yes')");
+        console.log("Project Created");
     }
-    catch (e) {
-        console.error(`Failed to execute ${command}`, e);
-        return false;
+    catch (error) {
+        console.error(`Error: ${error}`);
     }
-    return true;
-};
-exports.runCommand = runCommand;
-//clone from github
-const createApp = (temp, repoName) => {
-    const gitCheckoutCommand = `git clone --depth 1 ${temp.url} ${repoName}`;
-    const installDepsCommand = `cd ${repoName} && npm install`;
-    console.log(`Cloning the repository with name ${repoName}`);
-    const checkedOut = (0, exports.runCommand)(gitCheckoutCommand);
-    if (!checkedOut)
-        process.exit(-1);
-    const installedDeps = (0, exports.runCommand)(installDepsCommand);
-    if (!installedDeps)
-        process.exit(-1);
-    console.log(`Congratulations! ${temp.description} `);
 };
 exports.createApp = createApp;
-//create the file template
-const createFile = (url, name) => {
-    const fileName = url.split("/");
-    const run = (0, child_process_1.execSync)(`curl  ${url}`);
-    if (run.includes("404: Not Found"))
-        return console.log("Error 404 path doesnt found");
-    return fs_1.default.writeFile(fileName[fileName.length - 1], run, function (err) {
-        if (err)
-            throw err;
-        console.log('Created  successfully.');
-    });
+const createTS = (dir, object) => {
+    package_1.jsonPack.dependencies = object.dependencies;
+    package_1.jsonPack.scripts = object.scripts;
+    package_1.jsonPack.devDependencies = object.devDependencies;
+    if (!fs_1.default.existsSync(dir))
+        fs_1.default.mkdirSync(dir);
+    if (!fs_1.default.existsSync(`${dir}/dist`))
+        fs_1.default.mkdirSync(`${dir}/dist`);
+    fs_1.default.writeFileSync(`${dir}/dist/index.js`, '');
+    fs_1.default.writeFileSync(`${dir}/tsconfig.json`, JSON.stringify(package_1.tsconfig));
+    fs_1.default.mkdirSync(`${dir}/src`);
+    fs_1.default.writeFileSync(`${dir}/package.json`, JSON.stringify(package_1.jsonPack));
+    fs_1.default.writeFileSync(`${dir}/src/index.ts`, "console.log('yes')");
 };
-exports.createFile = createFile;
+exports.createTS = createTS;
+const fileApp = async (object) => {
+    try {
+        if (!fs_1.default.existsSync(`./styles`))
+            fs_1.default.mkdirSync('./styles');
+        // fs.writeFileSync(`./styles/reset.${object.extension}`, object.code)
+        var result = path_1.default.extname(url_1.default.parse(object.code).pathname);
+        const writer = fs_1.default.createWriteStream(`./styles/reset${result}`);
+        https_1.default.get(object.code, response => {
+            response.pipe(writer);
+        });
+        console.log("✅ Created");
+        console.log(`Import the style from './styles/reset${result}'`);
+    }
+    catch (error) {
+        console.error(`❗Error: ${error}`);
+    }
+};
+exports.fileApp = fileApp;
+const createAppNew = (dependencies, find) => {
+    console.log(dependencies, find);
+};
+exports.createAppNew = createAppNew;
+const createReactApp = async (app) => {
+    const dir = `./${app.name}`;
+    try {
+        if (!fs_1.default.existsSync(dir))
+            fs_1.default.mkdirSync(dir);
+        fs_1.default.readdirSync('./src/templates/react', { withFileTypes: true })
+            .filter(e => {
+            if (!e.isDirectory()) {
+                const data = fs_1.default.readFileSync(`./src/templates/react/${e.name}`);
+                fs_1.default.writeFileSync(`${dir}/${e.name}`, data);
+                if (e.name === 'package.json') {
+                    (0, functions_fs_1.jsonCreate)(app, dir);
+                }
+            }
+            else {
+                fs_1.default.readdirSync(`./src/templates/react/${e.name}`, { withFileTypes: true })
+                    .filter(type => !type.isDirectory())
+                    .forEach(files => {
+                    if (e.name !== "node_modules") {
+                        const data = fs_1.default.readFileSync(`./src/templates/react/${e.name}/${files.name}`);
+                        if (!fs_1.default.existsSync(`${dir}/${e.name}/`))
+                            fs_1.default.mkdirSync(`${dir}/${e.name}/`);
+                        fs_1.default.writeFileSync(`${dir}/${e.name}/${files.name}`, data);
+                    }
+                });
+            }
+        });
+        (0, function_css_frameworl_1.cssCreateFramework)(app, dir);
+        const installDepsCommand = `cd ${app.name} && npm install`;
+        (0, command_1.runCommand)(installDepsCommand);
+        if (!command_1.runCommand)
+            return console.log("Error in the installation");
+        console.log("Congratulations! You are ready. Follow the following commands to start");
+        console.log(`cd ${app.name} && npm start`);
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.createReactApp = createReactApp;

@@ -1,9 +1,7 @@
 {
-  "name": "templatelyjs",
-  "version": "1.1.14",
+  "name": "temp",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
-  "bin": "./dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
@@ -13,11 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/inquirer": "^9.0.3",
-    "inquirer": "^8.0.0",
-    "typescript": "^4.9.4"
+    "typescript": "*"
   },
   "devDependencies": {
-    "tsc-watch": "^6.0.0"
+    "tsc-watch": "*"
   }
 }

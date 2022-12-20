@@ -1,48 +1,113 @@
 #!/usr/bin/env node
 
 import inquirer from "inquirer";
-import { createApp, createFile, createProject, runCommand, selectTemplate } from "./controller/controller";
-import { templatesDB } from "./controller/interface";
+import { createApp, createAppNew, createReactApp, createTS } from "./controller/controller";
+import { selectFile } from "./controller/controller.prompt";
+import { AppTemplate } from "./controller/interface";
+import { cssTemplate } from "./const/cssFramework";
+import { appDB, FileConst } from "./const/appTemplates";
 
 
-const prompt = async () => {
+let app = {
+    name: '',
+    css: '',
+    comunity: ''
+};
 
-    // Find All Templates
-    const template = await inquirer.prompt({
-        type: 'list',
-        name: 'template',
-        message: "Choice Template",
-        choices: templatesDB,
-
-    })
-
-    //Choice Select Template filter
-
-    const temp = selectTemplate(template.template)
-
-    //if template doesnt exist
-    if (temp.length === 0) return console.log("error")
-
-    //if template is a file create the file
-    if (temp[0].typeTemplate === 'file') return createFile(temp[0].url, temp[0].name)
-
-    //else ask about the name project 
-    const projectName = await inquirer.prompt({
-        type: 'input',
-        name: 'command',
-        message: 'Name Folder (if the download is not a app thye file is download in the dir folder)',
-
-    })
-
-    //clone the template from github
-    const validateName = await createProject(projectName.command)
-    if (!validateName) return console.log("false")
-    const repoName = projectName.command;
-
-    createApp(temp[0], repoName)
-
-}
+let comunity: string = '';
+let framework: string = '';
 
 
-prompt()
+
+
+(async () => {
+
+    try {
+
+
+        const choice = await inquirer.prompt({
+
+            type: 'list',
+            name: 'choice',
+            message: "Select Create App or Take File",
+            choices: ['Create App', 'Select File']
+        })
+
+
+        if (choice.choice === 'Select File') return selectFile()
+
+
+
+        const selectApp = await inquirer.prompt({
+            type: 'list',
+            name: 'app',
+            message: 'Choice App',
+            choices: appDB.map(e => e.name)
+        })
+
+        if (selectApp.app === 'React') {
+
+            const selectCssFramework = await inquirer.prompt({
+                type: 'list',
+                name: 'css',
+                message: 'Select Framework',
+                choices: cssTemplate.map(e => e.name)
+
+            })
+
+
+
+
+            if (selectCssFramework.css === 'Css' || selectCssFramework.css === 'Sass') {
+                const style = FileConst.find(e => e.type === selectCssFramework.css.toLowerCase())
+                const choiceComunnityCss = await inquirer.prompt({
+                    type: 'list',
+                    message: 'Community Style',
+                    name: 'style',
+                    choices: [style!.name, 'None']
+
+                })
+
+
+                comunity = choiceComunnityCss.style
+
+                framework = selectCssFramework.css
+
+            }
+
+        }
+
+
+        const template = await inquirer.prompt({
+            type: 'input',
+            name: 'nameApp',
+            message: 'Name For The App',
+        })
+
+        if (template.nameApp === "") return console.error("Error:  I need a name for the app")
+
+        const find = appDB.find(e => selectApp.app === e.name) as AppTemplate
+
+
+        app = {
+            name: template.nameApp,
+
+            css: framework,
+            comunity
+        }
+
+        if (selectApp.app === 'React') return createReactApp(app)
+
+        createTS(template.nameApp, find)
+
+
+
+
+    } catch (error) {
+        console.log(`Error:${error}`)
+    }
+
+})()
+
+
 
