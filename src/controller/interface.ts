@@ -2,7 +2,7 @@
 
 
 
-export type typeApp = 'app' | 'template'
+export type typeApp = 'web' | 'api' | 'mobile'
 
 
 export interface AppTemplate {
@@ -11,7 +11,9 @@ export interface AppTemplate {
     dependencies: object,
     devDependencies: object,
     scripts: object,
-    extension: string
+    extension: string,
+    type: typeApp,
+    root: string
 
 }
 

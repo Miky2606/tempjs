@@ -28,22 +28,26 @@ exports.appDB = [
         dependencies: {},
         devDependencies: {},
         scripts: {},
-        extension: ''
+        extension: '',
+        type: 'web',
+        root: './src/templates/react'
     },
     {
         id: crypto_1.default.randomUUID(),
         name: 'Node App TS',
         dependencies: {
-            "typescript": "*"
+            "typescript": "^4.9.4"
         },
         devDependencies: {
-            "tsc-watch": "*"
+            "tsc-watch": "^6.0.0"
         },
         scripts: {
             "test": "echo \"Error: no test specified\" && exit 1",
             "build": "tsc",
             "dev": "tsc-watch --onSuccess \"node ./dist/index.js\""
         },
-        extension: 'ts'
+        extension: 'ts',
+        type: 'api',
+        root: './src/templates/ts'
     }
 ];

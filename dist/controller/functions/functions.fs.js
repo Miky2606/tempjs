@@ -21,18 +21,32 @@ const writeFile = (dir, data) => {
     }
 };
 exports.writeFile = writeFile;
-const jsonCreate = (app, dir) => {
-    const json = JSON.parse(fs_1.default.readFileSync(`./src/templates/react/package.json`).toString());
+const jsonCreate = (app, dir, appDB) => {
+    const json = JSON.parse(fs_1.default.readFileSync(`${dir}/package.json`).toString());
     json.name = app.name;
-    if (app.css !== "Css") {
-        const css = cssFramework_1.cssTemplate.find(e => e.name === app.css);
-        const dependencies = css.dependencies;
-        if (Object.keys(css.dependencies).length > 0)
-            Object.assign(json.dependencies, dependencies);
-        if (Object.keys(css.devDependencies).length > 0)
-            json.devDependencies = css.devDependencies;
+    if (app.css !== '' || app.css !== 'CSS') {
+        Object.assign(json, addCSSDepencies(app, json));
+    }
+    else {
+        Object.assign(json, addDepencies(appDB, json));
     }
     fs_1.default.writeFileSync(`${dir}/package.json`, JSON.stringify(json));
-    return json;
 };
 exports.jsonCreate = jsonCreate;
+const addCSSDepencies = (app, json) => {
+    const css = cssFramework_1.cssTemplate.find(e => e.name === app.css);
+    if (Object.keys(css.dependencies).length > 0)
+        Object.assign(json.dependencies, css.dependencies);
+    if (Object.keys(css.devDependencies).length > 0)
+        Object.assign(json.devDependencies, css.devDependencies);
+    return json;
+};
+const addDepencies = (appDB, json) => {
+    if (Object.keys(appDB.dependencies).length > 0)
+        Object.assign(json, appDB.dependencies);
+    if (Object.keys(appDB.scripts).length > 0)
+        Object.assign(json, appDB.scripts);
+    if (Object.keys(appDB.devDependencies).length > 0)
+        Object.assign(json, appDB.devDependencies);
+    return json;
+};

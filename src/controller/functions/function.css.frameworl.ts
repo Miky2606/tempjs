@@ -5,11 +5,14 @@ import { replace, writeFile } from "./functions.fs"
 import fs from 'fs'
 
 export const cssCreateFramework = (app: any, dir: string) => {
-    if (app.css !== '') {
+    if (app.css !== '' || app.css !== 'CSS') {
         const css = cssTemplate.find(e => e.name === app.css) as Dependencies
         if (css.name === 'Tailwind') {
             fs.writeFileSync(`${dir}/tailwind.config.js`, tailwindconfig)
-            fs.appendFileSync(`${dir}/src/index.css`, tailwindCss)
+            const textFile = fs.readFileSync(`${dir}/src/index.css`)
+
+            fs.writeFileSync(`${dir}/src/index.css`, tailwindCss)
+            fs.appendFileSync(`${dir}/src/index.css`, textFile)
         }
         if (css.name === 'Sass') {
             const style = fs.readFileSync(`${dir}/src/index.css`)

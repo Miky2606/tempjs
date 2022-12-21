@@ -9,11 +9,13 @@ const package_1 = require("../../package/package");
 const functions_fs_1 = require("./functions.fs");
 const fs_1 = __importDefault(require("fs"));
 const cssCreateFramework = (app, dir) => {
-    if (app.css !== '') {
+    if (app.css !== '' || app.css !== 'CSS') {
         const css = cssFramework_1.cssTemplate.find(e => e.name === app.css);
         if (css.name === 'Tailwind') {
             fs_1.default.writeFileSync(`${dir}/tailwind.config.js`, package_1.tailwindconfig);
-            fs_1.default.appendFileSync(`${dir}/src/index.css`, package_1.tailwindCss);
+            const textFile = fs_1.default.readFileSync(`${dir}/src/index.css`);
+            fs_1.default.writeFileSync(`${dir}/src/index.css`, package_1.tailwindCss);
+            fs_1.default.appendFileSync(`${dir}/src/index.css`, textFile);
         }
         if (css.name === 'Sass') {
             const style = fs_1.default.readFileSync(`${dir}/src/index.css`);

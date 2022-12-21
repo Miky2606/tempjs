@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "typescript": "*"
+    "typescript": "^4.9.4"
   },
   "devDependencies": {
-    "tsc-watch": "*"
+    "tsc-watch": "^6.0.0"
   }
 }

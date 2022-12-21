@@ -32,14 +32,15 @@ let framework = '';
             message: 'Choice App',
             choices: appTemplates_1.appDB.map(e => e.name)
         });
-        if (selectApp.app === 'React') {
+        const find = appTemplates_1.appDB.find(e => selectApp.app === e.name);
+        if (find.type === 'web') {
             const selectCssFramework = await inquirer_1.default.prompt({
                 type: 'list',
                 name: 'css',
                 message: 'Select Framework',
                 choices: cssFramework_1.cssTemplate.map(e => e.name)
             });
-            if (selectCssFramework.css === 'Css' || selectCssFramework.css === 'Sass') {
+            if (selectCssFramework.css === 'CSS' || selectCssFramework.css === 'Sass') {
                 const style = appTemplates_1.FileConst.find(e => e.type === selectCssFramework.css.toLowerCase());
                 const choiceComunnityCss = await inquirer_1.default.prompt({
                     type: 'list',
@@ -48,8 +49,8 @@ let framework = '';
                     choices: [style.name, 'None']
                 });
                 comunity = choiceComunnityCss.style;
-                framework = selectCssFramework.css;
             }
+            framework = selectCssFramework.css;
         }
         const template = await inquirer_1.default.prompt({
             type: 'input',
@@ -58,15 +59,12 @@ let framework = '';
         });
         if (template.nameApp === "")
             return console.error("Error:  I need a name for the app");
-        const find = appTemplates_1.appDB.find(e => selectApp.app === e.name);
         app = {
             name: template.nameApp,
             css: framework,
             comunity
         };
-        if (selectApp.app === 'React')
-            return (0, controller_1.createReactApp)(app);
-        (0, controller_1.createTS)(template.nameApp, find);
+        (0, controller_1.createReactApp)(app, find);
     }
     catch (error) {
         console.log(`Error:${error}`);

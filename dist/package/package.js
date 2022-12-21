@@ -121,4 +121,4 @@ module.exports = {
 }`;
 exports.tailwindCss = `@tailwind base;
 @tailwind components;
-@tailwind utilities;`;
+@tailwind utilities; \n`;

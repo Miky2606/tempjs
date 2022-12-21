@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import inquirer from "inquirer";
-import { createApp, createAppNew, createReactApp, createTS } from "./controller/controller";
+import { createReactApp } from "./controller/controller";
 import { selectFile } from "./controller/controller.prompt";
 import { AppTemplate } from "./controller/interface";
 import { cssTemplate } from "./const/cssFramework";
@@ -45,7 +45,9 @@ let framework: string = '';
             choices: appDB.map(e => e.name)
         })
 
-        if (selectApp.app === 'React') {
+        const find = appDB.find(e => selectApp.app === e.name) as AppTemplate
+
+        if (find.type === 'web') {
 
             const selectCssFramework = await inquirer.prompt({
                 type: 'list',
@@ -58,7 +60,7 @@ let framework: string = '';
 
 
 
-            if (selectCssFramework.css === 'Css' || selectCssFramework.css === 'Sass') {
+            if (selectCssFramework.css === 'CSS' || selectCssFramework.css === 'Sass') {
                 const style = FileConst.find(e => e.type === selectCssFramework.css.toLowerCase())
                 const choiceComunnityCss = await inquirer.prompt({
                     type: 'list',
@@ -71,9 +73,11 @@ let framework: string = '';
 
                 comunity = choiceComunnityCss.style
 
-                framework = selectCssFramework.css
+
 
             }
+
+            framework = selectCssFramework.css
 
         }
 
@@ -86,19 +90,21 @@ let framework: string = '';
 
         if (template.nameApp === "") return console.error("Error:  I need a name for the app")
 
-        const find = appDB.find(e => selectApp.app === e.name) as AppTemplate
+
 
 
         app = {
             name: template.nameApp,
-
             css: framework,
             comunity
         }
 
-        if (selectApp.app === 'React') return createReactApp(app)
 
-        createTS(template.nameApp, find)
+
+
+        createReactApp(app, find)
+
+
 
 
 
